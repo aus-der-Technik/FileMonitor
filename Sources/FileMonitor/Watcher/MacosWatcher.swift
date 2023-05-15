@@ -4,40 +4,66 @@
 
 import Foundation
 
-struct MacosWatcher: WatcherProtocol {
+class MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
-    var path: URL?
+    let dispatchSource: DispatchSourceFileSystemObject
 
-    let fileHandle: FileHandle
-    let source: DispatchSourceFileSystemObject
+    var dirFD : Int32 = -1 {
+        didSet {
+            if oldValue != -1 {
+                close(oldValue)
+            }
+        }
+    }
+    public var isRunning: Bool { dirFD != -1 }
 
-    init(directory: URL) throws {
-        fileHandle = try FileHandle(forReadingFrom: directory)
-        source = DispatchSource.makeFileSystemObjectSource(
-                fileDescriptor: fileHandle.fileDescriptor,
+    required init(directory: URL) throws {
+        dirFD = open(directory.path, O_EVTONLY)
+        print("+++", dirFD)
+        if dirFD < 0 {
+            throw FileMonitorErrors.can_not_open(url: directory)
+        }
+        dispatchSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: dirFD,
                 eventMask: .all,
-                queue: DispatchQueue.main
+                queue: .main
         )
-        source.setEventHandler { [self] in
-            let event = self.source.data
-            process(event: event)
+        dispatchSource.setEventHandler { [weak self] in
+            guard let self = self else { return }
+            self.handleEvent()
         }
 
-        source.setCancelHandler { [self] in
-            try? fileHandle.close()
+        dispatchSource.setCancelHandler { [weak self] in
+            self?.dirFD = -1
         }
+
+    }
+
+    deinit {
+        stop()
     }
 
     func observe() {
-
-
+        print("A")
+        dispatchSource.resume()
+        print("B")
     }
 
     func stop() {
-
+        dispatchSource.setEventHandler(handler: nil)
+        dispatchSource.cancel()
     }
 
-    private func process(event: DispatchSource.FileSystemEvent){
-        dump(event)
+    func handleEvent()  {
+        print("+++ EVENT +++")
+        delegate?.fileDidChanged(file: URL(filePath: "foo"))
+
+        //let currentFiles = getCurrentFiles()
+        //let newFiles = listNewFiles(lastFiles: lastFiles, currentFiles: currentFiles)
+        //let deletedFiles = listDeletedFiles(lastFiles: lastFiles, currentFiles: currentFiles)
+
+        //let changes = DirectoryChangeSet(newFiles: newFiles, deletedFiles: deletedFiles)
+        //delegate?.directoryWatcher(self, changed: changes)
+
+        //lastFiles = currentFiles
     }
 }

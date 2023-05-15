@@ -10,7 +10,7 @@ protocol WatcherDelegate {
 
 protocol WatcherProtocol {
     var delegate: WatcherDelegate? { set get }
-    var path: URL? { set get }
+
     init(directory: URL) throws
     func observe()
     func stop()

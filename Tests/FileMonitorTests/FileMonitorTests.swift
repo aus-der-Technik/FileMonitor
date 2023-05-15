@@ -24,15 +24,13 @@ final class FileMonitorTests: XCTestCase, FileDidChangedDelegate {
         try FileMonitor(directory: tmp, delegate: inlineWatcher)
 
         FileManager.default.createFile(atPath: file.path, contents: "hello".data(using: .utf8))
-        sleep(3)
+
         XCTAssertEqual(InlineWatcher.fileChanges, 1)
 
         try "New Content".write(toFile: file.path, atomically: true, encoding: .utf8)
-        sleep(3)
         XCTAssertEqual(InlineWatcher.fileChanges, 2)
 
         try FileManager.default.removeItem(at: file)
-        sleep(3)
         XCTAssertEqual(InlineWatcher.fileChanges, 3)
     }
 

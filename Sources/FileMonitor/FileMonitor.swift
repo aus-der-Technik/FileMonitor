@@ -5,6 +5,7 @@ public enum FileMonitorErrors: Error {
     case unsupported_os
     case not_implemented_yet
     case not_a_directory(url: URL)
+    case can_not_open(url: URL)
 }
 
 public protocol FileDidChangedDelegate {
@@ -18,6 +19,10 @@ public struct FileMonitor: WatcherDelegate {
 
     @discardableResult
     public init(directory url: URL, delegate externDelegate: FileDidChangedDelegate? = nil) throws {
+        if url.hasDirectoryPath == false {
+            throw FileMonitorErrors.not_a_directory(url: url)
+        }
+
         #if os(Linux) || os(FreeBSD)
             watcher = try LinuxWatcher(directory: url)
         #elseif os(macOS)
@@ -32,15 +37,9 @@ public struct FileMonitor: WatcherDelegate {
 
         // extern delegate
         if let externDelegate {
+            print("Set Ext")
             delegate = externDelegate
         }
-    }
-
-    public mutating func watch(directory: URL) throws {
-        if directory.hasDirectoryPath == false {
-            throw FileMonitorErrors.not_a_directory(url: directory)
-        }
-        // implement watcher here
         watcher.observe()
     }
 
