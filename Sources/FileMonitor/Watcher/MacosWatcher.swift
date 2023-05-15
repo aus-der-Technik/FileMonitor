@@ -7,33 +7,39 @@ import Foundation
 class MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
     let dispatchSource: DispatchSourceFileSystemObject
+    let queue = DispatchQueue.init(label: "filechanges", qos: .background)
+    let observingDirectory: URL
 
-    var dirFD : Int32 = -1 {
+    var directoryFileHandle : Int32 = -1 {
         didSet {
             if oldValue != -1 {
                 close(oldValue)
             }
         }
     }
-    public var isRunning: Bool { dirFD != -1 }
+    var isRunning: Bool { directoryFileHandle != -1 }
+    private var lastFiles: [URL] = []
 
     required init(directory: URL) throws {
-        dirFD = open(directory.path, O_EVTONLY)
-        print("+++", dirFD)
-        if dirFD < 0 {
+        directoryFileHandle = open(directory.path, O_EVTONLY)
+
+        if directoryFileHandle < 0 {
             throw FileMonitorErrors.can_not_open(url: directory)
         }
-        dispatchSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: dirFD,
+
+        observingDirectory = directory
+
+        dispatchSource = DispatchSource.makeFileSystemObjectSource(
+                fileDescriptor: directoryFileHandle,
                 eventMask: .all,
-                queue: .main
+                queue: queue
         )
         dispatchSource.setEventHandler { [weak self] in
             guard let self = self else { return }
-            self.handleEvent()
+            try? self.handleEvent()
         }
-
         dispatchSource.setCancelHandler { [weak self] in
-            self?.dirFD = -1
+            self?.directoryFileHandle = -1
         }
 
     }
@@ -42,28 +48,35 @@ class MacosWatcher: WatcherProtocol {
         stop()
     }
 
-    func observe() {
-        print("A")
+    func observe() throws {
+        lastFiles = try getCurrentFiles(in: observingDirectory)
         dispatchSource.resume()
-        print("B")
     }
 
     func stop() {
         dispatchSource.setEventHandler(handler: nil)
         dispatchSource.cancel()
+        lastFiles.removeAll()
     }
 
-    func handleEvent()  {
-        print("+++ EVENT +++")
-        delegate?.fileDidChanged(file: URL(filePath: "foo"))
+    func handleEvent() throws {
+        let currentFiles = try getCurrentFiles(in: observingDirectory)
+        let filesDeleted = listChanges(lhs: lastFiles, rhs: currentFiles)
+        let filesAdded = listChanges(lhs: currentFiles, rhs: lastFiles)
+        print("filesAdded \(filesAdded)")
+        print("filesDeleted \(filesDeleted)")
 
-        //let currentFiles = getCurrentFiles()
-        //let newFiles = listNewFiles(lastFiles: lastFiles, currentFiles: currentFiles)
-        //let deletedFiles = listDeletedFiles(lastFiles: lastFiles, currentFiles: currentFiles)
+        filesDeleted.forEach { delegate?.fileDidRemoved(file: $0) }
+        filesAdded.forEach { delegate?.fileDidAdded(file: $0) }
+        if filesDeleted.isEmpty && filesAdded.isEmpty {
+            delegate?.fileDidChanged(directory: observingDirectory)
+        }
 
-        //let changes = DirectoryChangeSet(newFiles: newFiles, deletedFiles: deletedFiles)
-        //delegate?.directoryWatcher(self, changed: changes)
-
-        //lastFiles = currentFiles
+        lastFiles = currentFiles
     }
+
+    private func listChanges(lhs: [URL], rhs: [URL]) -> Set<URL> {
+        Set(lhs).subtracting(rhs)
+    }
+
 }

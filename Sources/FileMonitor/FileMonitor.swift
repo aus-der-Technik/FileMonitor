@@ -23,6 +23,11 @@ public struct FileMonitor: WatcherDelegate {
             throw FileMonitorErrors.not_a_directory(url: url)
         }
 
+        // extern delegate
+        if let externDelegate {
+            delegate = externDelegate
+        }
+
         #if os(Linux) || os(FreeBSD)
             watcher = try LinuxWatcher(directory: url)
         #elseif os(macOS)
@@ -32,19 +37,30 @@ public struct FileMonitor: WatcherDelegate {
         #else
             throw FileMonitorErrors.unsupported_os()
         #endif
-
         watcher.delegate = self
+        print("wait...")
 
-        // extern delegate
-        if let externDelegate {
-            print("Set Ext")
-            delegate = externDelegate
-        }
-        watcher.observe()
+
+    }
+
+    public func start() throws {
+        try watcher.observe()
     }
 
     // MARK: - Delegates
-    public func fileDidChanged(file changedURL: URL) {
-        delegate?.fileDidChanged(file: changedURL)
+    public func fileDidAdded(file: URL) {
+        print("Added")
+        delegate?.fileDidChanged(file: file)
     }
+    func fileDidRemoved(file: URL) {
+        print("Removed")
+        delegate?.fileDidChanged(file: file)
+
+    }
+
+    func fileDidChanged(directory: URL) {
+        print("Changed")
+        delegate?.fileDidChanged(file: directory)
+    }
+
 }

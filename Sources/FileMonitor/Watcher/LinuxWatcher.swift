@@ -15,7 +15,7 @@ struct LinuxWatcher: WatcherProtocol {
         throw FileMonitorErrors.not_implemented_yet
     }
 
-    func observe() {
+    func observe() throws {
 
     }
 
