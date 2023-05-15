@@ -1,0 +1,4 @@
+module CInotify [system] {
+  header "Headers/CInotify-Bridging-Header.h"
+  export *
+}
