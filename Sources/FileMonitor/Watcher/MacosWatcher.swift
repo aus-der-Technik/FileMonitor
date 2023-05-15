@@ -8,11 +8,28 @@ struct MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
     var path: URL?
 
-    init() throws {
-        throw FileMonitorErrors.not_implemented_yet
+    let fileHandle: FileHandle
+    let source: DispatchSourceFileSystemObject
+
+    init(directory: URL) throws {
+        fileHandle = try FileHandle(forReadingFrom: directory)
+        source = DispatchSource.makeFileSystemObjectSource(
+                fileDescriptor: fileHandle.fileDescriptor,
+                eventMask: .all,
+                queue: DispatchQueue.main
+        )
+        source.setEventHandler { [self] in
+            let event = self.source.data
+            process(event: event)
+        }
+
+        source.setCancelHandler { [self] in
+            try? fileHandle.close()
+        }
     }
 
-    func start() {
+    func observe() {
+
 
     }
 
@@ -20,4 +37,7 @@ struct MacosWatcher: WatcherProtocol {
 
     }
 
+    private func process(event: DispatchSource.FileSystemEvent){
+        dump(event)
+    }
 }

@@ -9,11 +9,11 @@ struct WindowsWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
     var path: URL?
 
-    init() throws {
+    init(directory: URL) throws {
         throw FileMonitorErrors.not_implemented_yet
     }
 
-    func start() {
+    func observe() {
 
     }
 

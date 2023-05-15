@@ -4,7 +4,7 @@ import XCTest
 final class FileMonitorTests: XCTestCase, FileDidChangedDelegate {
 
     func testInitModule() throws {
-        XCTAssertNoThrow(try FileMonitor())
+        XCTAssertNoThrow(try FileMonitor(directory: FileManager.default.temporaryDirectory))
     }
 
     func testLifecycle() throws {
@@ -21,8 +21,7 @@ final class FileMonitorTests: XCTestCase, FileDidChangedDelegate {
         let tmp = FileManager.default.temporaryDirectory
         let file = tmp.appendingPathComponent("foo.txt");
 
-        let monitor = try FileMonitor(delegate: inlineWatcher)
-        try monitor.watch(directory: tmp)
+        try FileMonitor(directory: tmp, delegate: inlineWatcher)
 
         FileManager.default.createFile(atPath: file.path, contents: "hello".data(using: .utf8))
         sleep(3)
