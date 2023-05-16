@@ -25,7 +25,8 @@ let package = Package(
         .target(
             name: "FileMonitor",
             dependencies: [
-                "CInotify", "FileWatcher"
+                "CInotify",
+                .product(name: "FileWatcher", package: "FileWatcher", condition: .when(platforms: [.macOS])),
             ]),
         .systemLibrary(name: "CInotify",
             path: "Sources/Inotify"

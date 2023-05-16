@@ -4,6 +4,7 @@
 
 import Foundation
 
+#if os(macOS)
 class MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
     let dispatchSource: DispatchSourceFileSystemObject
@@ -80,3 +81,4 @@ class MacosWatcher: WatcherProtocol {
     }
 
 }
+#endif

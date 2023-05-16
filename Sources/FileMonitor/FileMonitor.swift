@@ -50,12 +50,21 @@ public struct FileMonitor: WatcherDelegate {
 
     func fileDidChanged(event: FileChangeEvent) {
         print("Changed")
+        print(event)
+        let url: URL
         switch event {
-        case .added(file: <#T##URL##Foundation.URL#>):
-            print("FILE added", file)
+            case let .added(file):
+                url = file
+                print("FILE added", file)
+            case let .deleted(file):
+                url = file
+                print("FILE deleted", file)
+            case let .changed(file):
+                url = file
+                print("FILE changed", file)
         }
 
-        delegate?.fileDidChanged(event: event)
+        delegate?.fileDidChanged(file: url)
     }
 
 }

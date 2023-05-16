@@ -3,6 +3,7 @@
 //
 
 import Foundation
+#if os(macOS)
 import FileWatcher
 
 class MacosWatcher2: WatcherProtocol {
@@ -35,3 +36,4 @@ class MacosWatcher2: WatcherProtocol {
 
 
 }
+#endif

@@ -4,6 +4,7 @@
 
 import Foundation
 
+#if os(macOS)
 public struct DirectoryChangeSet {
     public var newFiles: Set<URL>
     public var deletedFiles: Set<URL>
@@ -126,3 +127,4 @@ public class DirectoryWatcher {
         Set(left).subtracting(right)
     }
 }
+#endif

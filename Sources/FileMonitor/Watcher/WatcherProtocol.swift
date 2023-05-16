@@ -12,7 +12,7 @@ enum FileChangeEvent {
 }
 protocol WatcherDelegate {
 
-    func fileDidChanged(file: FileChangeEvent)
+    func fileDidChanged(event: FileChangeEvent)
 }
 
 protocol WatcherProtocol {
