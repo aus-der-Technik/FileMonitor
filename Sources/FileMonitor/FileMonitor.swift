@@ -8,14 +8,17 @@ public enum FileMonitorErrors: Error {
     case can_not_open(url: URL)
 }
 
-public protocol FileDidChangedDelegate {
-    func fileDidChanged(file: URL)
-}
+public typealias FileDidChangedDelegate = WatcherDelegate
 
 public struct FileMonitor: WatcherDelegate {
 
     var watcher: WatcherProtocol
-    public var delegate: FileDidChangedDelegate?
+    public var delegate: FileDidChangedDelegate? {
+        didSet {
+            // further improvement:
+            // bind watcher.delegate direct to delegate to get rid of call-tree
+        }
+    }
 
     @discardableResult
     public init(directory url: URL, delegate externDelegate: FileDidChangedDelegate? = nil) throws {
@@ -37,34 +40,33 @@ public struct FileMonitor: WatcherDelegate {
         #else
             throw FileMonitorErrors.unsupported_os()
         #endif
+
         watcher.delegate = self
-        print("wait...")
-
-
     }
 
     public func start() throws {
         try watcher.observe()
     }
 
+    // MARK: - WatcherDelegate
 
-    func fileDidChanged(event: FileChangeEvent) {
+    public func fileDidChanged(event: FileChangeEvent) {
         print("Changed")
         print(event)
-        let url: URL
+
         switch event {
             case let .added(file):
-                url = file
+                //url = file
                 print("FILE added", file)
             case let .deleted(file):
-                url = file
+                //url = file
                 print("FILE deleted", file)
             case let .changed(file):
-                url = file
+                //url = file
                 print("FILE changed", file)
         }
 
-        delegate?.fileDidChanged(file: url)
+        delegate?.fileDidChanged(event: event)
     }
 
 }

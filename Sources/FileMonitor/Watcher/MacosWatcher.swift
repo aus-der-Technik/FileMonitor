@@ -17,8 +17,10 @@ class MacosWatcher: WatcherProtocol {
         filewatcher.callback = { event in
             print("Something happened here: " + event.path)
             dump(event)
-            // self.delegate?.fileDidChanged(directory: directory)
-            //self.delegate?.fileDidChanged(file: .added(file: event.path))
+            if let url = URL(string: event.path) {
+                self.delegate?.fileDidChanged(event: FileChangeEvent.changed(file: url))
+            }
+
         }
     }
 

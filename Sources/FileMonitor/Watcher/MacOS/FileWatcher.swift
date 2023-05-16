@@ -3,7 +3,7 @@
 // Based on: https://github.com/eonist/FileWatcher/tree/master
 //
 
-
+#if os(macOS)
 import Cocoa
 
 public class FileWatcher {
@@ -66,3 +66,4 @@ extension FileWatcher {
         self.queue = queue
     }
 }
+#endif

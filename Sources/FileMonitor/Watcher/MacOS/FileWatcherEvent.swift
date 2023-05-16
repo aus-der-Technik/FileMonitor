@@ -3,7 +3,7 @@
 // Based on: https://github.com/eonist/FileWatcher/tree/master
 //
 
-
+#if os(macOS)
 import Foundation
 /**
  * - Parameters:
@@ -70,3 +70,4 @@ extension FileWatcherEvent {
         return result
     }
 }
+#endif

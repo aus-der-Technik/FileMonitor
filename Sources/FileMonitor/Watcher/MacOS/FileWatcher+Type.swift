@@ -3,7 +3,7 @@
 // Based on: https://github.com/eonist/FileWatcher/tree/master
 //
 
-
+#if os(macOS)
 import Cocoa
 /**
  * Callback signature
@@ -11,3 +11,4 @@ import Cocoa
 extension FileWatcher {
     public typealias CallBack = (_ fileWatcherEvent: FileWatcherEvent) -> Void
 }
+#endif
