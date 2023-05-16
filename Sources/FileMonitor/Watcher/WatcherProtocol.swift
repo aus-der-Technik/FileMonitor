@@ -10,8 +10,8 @@ enum FileChangeEvent {
     case changed(file: URL)
     // case moved(from: URL, to: URL) // tbd
 }
-protocol WatcherDelegate {
 
+protocol WatcherDelegate {
     func fileDidChanged(event: FileChangeEvent)
 }
 
@@ -25,11 +25,11 @@ protocol WatcherProtocol {
 
 extension WatcherProtocol {
     func getCurrentFiles(in directory: URL) throws -> [URL] {
-         try FileManager.default.contentsOfDirectory(
-                    at: directory,
-                    includingPropertiesForKeys: [.creationDateKey, .typeIdentifierKey],
-                    options: [.skipsHiddenFiles]
-            )
+        try FileManager.default.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: [.creationDateKey, .typeIdentifierKey],
+                options: [.skipsHiddenFiles]
+        )
 
     }
 }

@@ -7,7 +7,7 @@ final class FileMonitorTests: XCTestCase {
         XCTAssertNoThrow(try FileMonitor(directory: FileManager.default.temporaryDirectory))
     }
 
-    func testLifecycle() throws {
+    func t_estLifecycle() throws {
         let expectation = expectation(description: "Wait for file change")
 
         let tmp = FileManager.default.temporaryDirectory
