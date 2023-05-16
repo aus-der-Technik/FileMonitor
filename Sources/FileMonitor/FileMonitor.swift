@@ -31,7 +31,7 @@ public struct FileMonitor: WatcherDelegate {
         #if os(Linux) || os(FreeBSD)
             watcher = try LinuxWatcher(directory: url)
         #elseif os(macOS)
-            watcher = try MacosWatcher(directory: url)
+            watcher = try MacosWatcher2(directory: url)
         #elseif os(Windows)
             watcher = try WindowsWatcher(directory: url)
         #else
@@ -47,20 +47,15 @@ public struct FileMonitor: WatcherDelegate {
         try watcher.observe()
     }
 
-    // MARK: - Delegates
-    public func fileDidAdded(file: URL) {
-        print("Added")
-        delegate?.fileDidChanged(file: file)
-    }
-    func fileDidRemoved(file: URL) {
-        print("Removed")
-        delegate?.fileDidChanged(file: file)
 
-    }
-
-    func fileDidChanged(directory: URL) {
+    func fileDidChanged(event: FileChangeEvent) {
         print("Changed")
-        delegate?.fileDidChanged(file: directory)
+        switch event {
+        case .added(file: <#T##URL##Foundation.URL#>):
+            print("FILE added", file)
+        }
+
+        delegate?.fileDidChanged(event: event)
     }
 
 }

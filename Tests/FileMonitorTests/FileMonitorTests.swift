@@ -28,7 +28,7 @@ final class FileMonitorTests: XCTestCase {
         print("-A")
         let monitor = try FileMonitor(directory: tmp, delegate: watcher)
         print("-B")
-        monitor.start()
+        try monitor.start()
         print("-C")
 
         FileManager.default.createFile(atPath: file.path, contents: "hello".data(using: .utf8))

@@ -4,10 +4,15 @@
 
 import Foundation
 
+enum FileChangeEvent {
+    case added(file: URL)
+    case deleted(file: URL)
+    case changed(file: URL)
+    // case moved(from: URL, to: URL) // tbd
+}
 protocol WatcherDelegate {
-    func fileDidAdded(file: URL)
-    func fileDidRemoved(file: URL)
-    func fileDidChanged(directory: URL)
+
+    func fileDidChanged(file: FileChangeEvent)
 }
 
 protocol WatcherProtocol {
