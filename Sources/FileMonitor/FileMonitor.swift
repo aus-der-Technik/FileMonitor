@@ -32,7 +32,7 @@ public struct FileMonitor: WatcherDelegate {
         }
 
         #if os(Linux) || os(FreeBSD)
-            watcher = try LinuxWatcher(directory: url)
+            watcher = LinuxWatcher(directory: url)
         #elseif os(macOS)
             watcher = try MacosWatcher(directory: url)
         #elseif os(Windows)
