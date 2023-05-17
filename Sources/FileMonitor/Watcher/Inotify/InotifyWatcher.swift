@@ -79,16 +79,20 @@ public class FileSystemWatcher {
     private let fileDescriptor: Int
     private let dispatchQueue: DispatchQueue
 
-    private var watchDescriptor: Int
+    private var watchDescriptor: Int = 0
     private var shouldStopWatching: Bool = false
 
     public init() {
-        dispatchQueue = DispatchQueue(label: "inotify.queue", qos: .background, attributes: [.initiallyInactive, .concurrent])
-        watchDescriptor = Int()
+        //dispatchQueue = DispatchQueue(label: "inotify.queue", qos: .background, attributes: [.initiallyInactive, .concurrent])
+        dispatchQueue = DispatchQueue.global(qos: .background)
         fileDescriptor = Int(inotify_init())
         if fileDescriptor < 0 {
             fatalError("Failed to initialize inotify")
         }
+    }
+
+    deinit {
+        stop()
     }
 
     public func start() {
@@ -101,7 +105,9 @@ public class FileSystemWatcher {
         dispatchQueue.suspend()
 
         // ToDo: Does this imply that stop() deinits this watcher (and thus needs to be recreated?)
-        inotify_rm_watch(Int32(fileDescriptor), Int32(watchDescriptor))
+        if watchDescriptor > 0 {
+            inotify_rm_watch(Int32(fileDescriptor), Int32(watchDescriptor))
+        }
         close(Int32(fileDescriptor))
     }
 
