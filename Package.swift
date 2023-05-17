@@ -32,5 +32,8 @@ let package = Package(
         .testTarget(
             name: "FileMonitorTests",
             dependencies: ["FileMonitor"]),
+        .executableTarget(
+            name: "FileMonitorExample",
+            dependencies: ["FileMonitor"]),
     ]
 )
