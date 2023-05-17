@@ -8,22 +8,34 @@ import Foundation
 class MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
     let fileWatcher: FileWatcher
+    private var lastFiles: [URL] = []
 
     required init(directory: URL) throws {
+
         fileWatcher = FileWatcher([directory.path])
         fileWatcher.queue = DispatchQueue.global()
+        lastFiles = try getCurrentFiles(in: directory)
 
-        fileWatcher.callback = { event in
+        fileWatcher.callback = { [self] event throws in
             if let url = URL(string: event.path), url.isDirectory == false {
-                print("DELEGATE: ", url.path)
+                let currentFiles = try getCurrentFiles(in: directory)
+
+                let removedFiles = getDifferencesInFiles(lhs: lastFiles, rhs: currentFiles)
+                let addedFiles = getDifferencesInFiles(lhs: currentFiles, rhs: lastFiles)
+
                 // new file in folder is a change, yet
                 if event.fileCreated {
                     self.delegate?.fileDidChanged(event: FileChangeEvent.added(file: url))
                 } else if event.fileRemoved {
                     self.delegate?.fileDidChanged(event: FileChangeEvent.deleted(file: url))
                 } else {
+                    if removedFiles.isEmpty == false {
+
+                    }
                     self.delegate?.fileDidChanged(event: FileChangeEvent.changed(file: url))
                 }
+
+                lastFiles = currentFiles
             }
         }
     }

@@ -34,9 +34,11 @@ public class FileWatcher {
     ) in
         let fileSystemWatcher = Unmanaged<FileWatcher>.fromOpaque(contextInfo!).takeUnretainedValue()
         let paths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [String]
+
         (0..<numEvents).indices.forEach { index in
-            fileSystemWatcher.callback?(FileWatcherEvent(eventIds[index], paths[index], eventFlags[index]))
+            try? fileSystemWatcher.callback?(FileWatcherEvent(eventIds[index], paths[index], eventFlags[index]))
         }
+
     }
 
     let retainCallback: CFAllocatorRetainCallBack = {(info: UnsafeRawPointer?) in

@@ -43,7 +43,6 @@ final class FileMonitorTests: XCTestCase {
                     callback()
                 }
             }
-
         }
     }
 

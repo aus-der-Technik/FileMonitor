@@ -30,6 +30,10 @@ extension WatcherProtocol {
                 includingPropertiesForKeys: [.creationDateKey, .typeIdentifierKey],
                 options: [.skipsHiddenFiles]
         )
-
     }
+
+    func getDifferencesInFiles(lhs: [URL], rhs: [URL]) -> Set<URL> {
+        Set(lhs).subtracting(rhs)
+    }
+
 }
