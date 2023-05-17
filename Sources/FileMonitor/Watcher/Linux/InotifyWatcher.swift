@@ -1,4 +1,7 @@
+#if os(Linux)
 import CInotify
+
+
 import Dispatch
 import Foundation
 
@@ -146,3 +149,4 @@ public class FileSystemWatcher {
         return watchDescriptor
     }
 }
+#endif

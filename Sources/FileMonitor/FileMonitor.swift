@@ -22,7 +22,7 @@ public struct FileMonitor: WatcherDelegate {
 
     @discardableResult
     public init(directory url: URL, delegate externDelegate: FileDidChangedDelegate? = nil) throws {
-        if url.hasDirectoryPath == false {
+        if url.isDirectory == false {
             throw FileMonitorErrors.not_a_directory(url: url)
         }
 

@@ -5,7 +5,7 @@
 import Foundation
 #if os(Linux) || os(FreeBSD)
 import CInotify
-#endif
+
 
 struct LinuxWatcher: WatcherProtocol {
     var fsWatcher: FileSystemWatcher
@@ -62,3 +62,4 @@ struct LinuxWatcher: WatcherProtocol {
         fsWatcher.stop()
     }
 }
+#endif
