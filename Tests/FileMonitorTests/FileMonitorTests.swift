@@ -7,15 +7,18 @@ final class FileMonitorTests: XCTestCase {
     let tmp = FileManager.default.temporaryDirectory
     let dir = String.random(length: 10)
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUp()
         let directory = tmp.appendingPathComponent(dir)
-        do {
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            print("Created directory: \(tmp.appendingPathComponent(dir).path)")
-        } catch {
-            XCTFail("Can not create test directory: \(directory)")
-        }
+
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        print("Created directory: \(tmp.appendingPathComponent(dir).path)")
+    }
+
+    override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        let directory = tmp.appendingPathComponent(dir)
+        try FileManager.default.removeItem(at: directory)
     }
 
     func testInitModule() throws {

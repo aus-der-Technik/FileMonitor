@@ -51,21 +51,16 @@ public struct FileMonitor: WatcherDelegate {
     // MARK: - WatcherDelegate
 
     public func fileDidChanged(event: FileChangeEvent) {
-        print("Changed")
-        print(event)
-
+        // TODO: Implement logger
         switch event {
             case let .added(file):
-                //url = file
                 print("FILE added", file)
             case let .deleted(file):
-                //url = file
                 print("FILE deleted", file)
             case let .changed(file):
-                //url = file
                 print("FILE changed", file)
         }
-
+        // pass to external delegeate 
         delegate?.fileDidChanged(event: event)
     }
 

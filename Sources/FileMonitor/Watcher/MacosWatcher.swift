@@ -7,15 +7,15 @@ import Foundation
 
 class MacosWatcher: WatcherProtocol {
     var delegate: WatcherDelegate?
-    let filewatcher: FileWatcher
+    let fileWatcher: FileWatcher
 
     required init(directory: URL) throws {
-        filewatcher = FileWatcher([directory.path])
+        fileWatcher = FileWatcher([directory.path])
 
         //filewatcher.queue = DispatchQueue.global()
 
-        filewatcher.callback = { event in
-            print("Something happened here: " + event.path)
+        fileWatcher.callback = { event in
+
 
             if let url = URL(string: event.path) {
                 // new file in folder is a change, yet
@@ -35,11 +35,11 @@ class MacosWatcher: WatcherProtocol {
     }
 
     func observe() throws {
-        filewatcher.start()
+        fileWatcher.start()
     }
 
     func stop() {
-        filewatcher.stop();
+        fileWatcher.stop();
     }
 
 
