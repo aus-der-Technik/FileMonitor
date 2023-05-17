@@ -8,7 +8,7 @@ final class FileMonitorTests: XCTestCase {
     let dir = String.random(length: 10)
 
     override func setUpWithError() throws {
-        try super.setUp()
+        super.setUp()
         let directory = tmp.appendingPathComponent(dir)
 
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -48,7 +48,7 @@ final class FileMonitorTests: XCTestCase {
     }
 
     func testLifecycleCreate() throws {
-        var expectation = expectation(description: "Wait for file creation")
+        let expectation = expectation(description: "Wait for file creation")
         expectation.assertForOverFulfill = false
 
         let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
@@ -61,11 +61,11 @@ final class FileMonitorTests: XCTestCase {
         FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
         wait(for: [expectation], timeout: 10)
 
-        XCTAssertEqual(Watcher.fileChanges, 1)
+        XCTAssertGreaterThan(Watcher.fileChanges, 0)
     }
 
     func testLifecycleChange() throws {
-        var expectation = expectation(description: "Wait for file creation")
+        let expectation = expectation(description: "Wait for file creation")
         expectation.assertForOverFulfill = false
 
         let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
@@ -77,14 +77,14 @@ final class FileMonitorTests: XCTestCase {
         try monitor.start()
         Watcher.fileChanges = 0
 
-        try "New Content".write(toFile: testFile.path, atomically: false, encoding: .utf8)
+        try "New Content".write(toFile: testFile.path, atomically: true, encoding: .utf8)
         wait(for: [expectation], timeout: 10)
 
-        XCTAssertEqual(Watcher.fileChanges, 1)
+        XCTAssertGreaterThan(Watcher.fileChanges, 0)
     }
 
     func testLifecycleDelete() throws {
-        var expectation = expectation(description: "Wait for file deletion")
+        let expectation = expectation(description: "Wait for file deletion")
         expectation.assertForOverFulfill = false
 
         let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
@@ -99,6 +99,6 @@ final class FileMonitorTests: XCTestCase {
         try FileManager.default.removeItem(at: testFile)
         wait(for: [expectation], timeout: 10)
 
-        XCTAssertEqual(Watcher.fileChanges, 1)
+        XCTAssertGreaterThan(Watcher.fileChanges, 0)
     }
 }

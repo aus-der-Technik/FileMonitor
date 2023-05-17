@@ -7,12 +7,15 @@
 import Cocoa
 
 public class FileWatcher {
-    let filePaths: [String]  // -- paths to watch - works on folders and file paths
-    public var callback: (CallBack)?
+    public var callback: CallBack?
     public var queue: DispatchQueue?
+
+    let filePaths: [String]  // -- paths to watch - works on folders and file paths
     var streamRef: FSEventStreamRef?
     var hasStarted: Bool { streamRef != nil }
-    public init(_ paths: [String]) { self.filePaths = paths }
+
+    public init(_ paths: [String]) { filePaths = paths }
+
     /**
     * - Parameters:
     *    - streamRef: The stream for which event(s) occurred. clientCallBackInfo: The info field that was supplied in the context when this stream was created.
@@ -35,20 +38,21 @@ public class FileWatcher {
             fileSystemWatcher.callback?(FileWatcherEvent(eventIds[index], paths[index], eventFlags[index]))
         }
     }
+
     let retainCallback: CFAllocatorRetainCallBack = {(info: UnsafeRawPointer?) in
         _ = Unmanaged<FileWatcher>.fromOpaque(info!).retain()
         return info
     }
+
     let releaseCallback: CFAllocatorReleaseCallBack = {(info: UnsafeRawPointer?) in
         Unmanaged<FileWatcher>.fromOpaque(info!).release()
     }
+
     func selectStreamScheduler() {
         if let queue = queue {
             FSEventStreamSetDispatchQueue(streamRef!, queue)
         } else {
-            FSEventStreamScheduleWithRunLoop(
-                    streamRef!, CFRunLoopGetMain(), CFRunLoopMode.defaultMode.rawValue
-            )
+            FSEventStreamSetDispatchQueue(streamRef!, DispatchQueue.main)
         }
     }
 }
@@ -58,7 +62,7 @@ public class FileWatcher {
 extension FileWatcher {
     convenience init(
             _ paths: [String],
-            _ callback: @escaping (CallBack),
+            _ callback: @escaping CallBack,
             _ queue: DispatchQueue
     ) {
         self.init(paths)

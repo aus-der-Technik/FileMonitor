@@ -5,10 +5,12 @@
 
 #if os(macOS)
 import Cocoa
+
 /**
  * Actions
  */
 extension FileWatcher {
+
     /**
     * Start listening for FSEvents
     */
@@ -33,6 +35,7 @@ extension FileWatcher {
         selectStreamScheduler()
         FSEventStreamStart(streamRef!)
     }
+
     /**
     * Stop listening for FSEvents
     */

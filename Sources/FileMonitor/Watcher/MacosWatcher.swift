@@ -11,13 +11,11 @@ class MacosWatcher: WatcherProtocol {
 
     required init(directory: URL) throws {
         fileWatcher = FileWatcher([directory.path])
-
-        //filewatcher.queue = DispatchQueue.global()
+        fileWatcher.queue = DispatchQueue.global()
 
         fileWatcher.callback = { event in
-
-
-            if let url = URL(string: event.path) {
+            if let url = URL(string: event.path), url.isDirectory == false {
+                print("DELEGATE: ", url.path)
                 // new file in folder is a change, yet
                 if event.fileCreated {
                     self.delegate?.fileDidChanged(event: FileChangeEvent.added(file: url))

@@ -5,10 +5,11 @@
 
 #if os(macOS)
 import Foundation
+
 /**
  * - Parameters:
  *    - id: is an id number that the os uses to differentiate between events.
- *    - path: is the path the change took place. its formated like so: Users/John/Desktop/test/text.txt
+ *    - path: is the path the change took place. its formatted like so: Users/John/Desktop/test/text.txt
  *    - flag: pertains to the file event type.
  * ## Examples:
  * let url = NSURL(fileURLWithPath: event.path)//<--formats paths to: file:///Users/John/Desktop/test/text.txt
@@ -20,12 +21,14 @@ public class FileWatcherEvent {
     public var id: FSEventStreamEventId
     public var path: String
     public var flags: FSEventStreamEventFlags
+
     init(_ eventId: FSEventStreamEventId, _ eventPath: String, _ eventFlags: FSEventStreamEventFlags) {
-        self.id = eventId
-        self.path = eventPath
-        self.flags = eventFlags
+        id = eventId
+        path = eventPath
+        flags = eventFlags
     }
 }
+
 /**
  * The following code is to differentiate between the FSEvent flag types (aka file event types)
  * - Remark: Be aware that .DS_STORE changes frequently when other files change
@@ -40,8 +43,9 @@ extension FileWatcherEvent {
     var renamed: Bool { (flags & FSEventStreamEventFlags(kFSEventStreamEventFlagItemRenamed)) != 0 }
     var modified: Bool { (flags & FSEventStreamEventFlags(kFSEventStreamEventFlagItemModified)) != 0 }
 }
+
 /**
- * Convenince
+ * Convenience
  */
 extension FileWatcherEvent {
     // File
@@ -55,6 +59,7 @@ extension FileWatcherEvent {
     public var dirRenamed: Bool { dirChange && renamed }
     public var dirModified: Bool { dirChange && modified }
 }
+
 /**
  * Simplifies debugging
  * ## Examples:
@@ -62,11 +67,11 @@ extension FileWatcherEvent {
  */
 extension FileWatcherEvent {
     public var description: String {
-        var result = "The \(fileChange ? "file":"directory") \(self.path) was"
-        if self.removed { result += " removed" }
-        else if self.created { result += " created" }
-        else if self.renamed { result += " renamed" }
-        else if self.modified { result += " modified" }
+        var result = "The \(fileChange ? "file":"directory") \(path) was"
+        if removed { result += " removed" }
+        else if created { result += " created" }
+        else if renamed { result += " renamed" }
+        else if modified { result += " modified" }
         return result
     }
 }
