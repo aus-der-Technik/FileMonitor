@@ -4,53 +4,98 @@ import XCTest
 
 final class FileMonitorTests: XCTestCase {
 
+    let tmp = FileManager.default.temporaryDirectory
+    let dir = String.random(length: 10)
+
+    override func setUp() {
+        super.setUp()
+        let directory = tmp.appendingPathComponent(dir)
+        do {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            print("Created directory: \(tmp.appendingPathComponent(dir).path)")
+        } catch {
+            XCTFail("Can not create test directory: \(directory)")
+        }
+    }
+
     func testInitModule() throws {
         XCTAssertNoThrow(try FileMonitor(directory: FileManager.default.temporaryDirectory))
     }
 
-    func testLifecycle() throws {
-        var expectation = expectation(description: "Wait for file change")
+    struct Watcher: FileDidChangedDelegate {
+        static var fileChanges = 0
+        let callback: ()->Void
+        let file: URL
+
+        init(on file: URL, completion: @escaping ()->Void) {
+            self.file = file
+            callback = completion
+        }
+
+        func fileDidChanged(event: FileChangeEvent) {
+            switch event {
+            case .changed(let fileInEvent), .deleted(let fileInEvent), .added(let fileInEvent):
+                if file.lastPathComponent == fileInEvent.lastPathComponent {
+                    Watcher.fileChanges = Watcher.fileChanges + 1
+                    callback()
+                }
+            }
+
+        }
+    }
+
+    func testLifecycleCreate() throws {
+        var expectation = expectation(description: "Wait for file creation")
         expectation.assertForOverFulfill = false
 
-        let tmp = FileManager.default.temporaryDirectory
-        let dir = String.random(length: 10)
-        try FileManager.default.createDirectory(at: tmp.appendingPathComponent(dir), withIntermediateDirectories: true)
-        print("Created directory: \(tmp.appendingPathComponent(dir).path)")
-
-        let file = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
-        print("Testfile: \(file)")
-
-        struct Watcher: FileDidChangedDelegate {
-            static var fileChanges = 0
-            let callback: ()->Void
-
-            func fileDidChanged(event: FileChangeEvent) {
-                print("**** IN")
-                Watcher.fileChanges = Watcher.fileChanges + 1
-                callback()
-            }
-
-            init(completion: @escaping ()->Void) {
-                callback = completion
-            }
-        }
-        let watcher = Watcher() { expectation.fulfill() }
+        let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
+        let watcher = Watcher(on: testFile) { expectation.fulfill() }
 
         let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir), delegate: watcher)
         try monitor.start()
         Watcher.fileChanges = 0
 
-        FileManager.default.createFile(atPath: file.path, contents: "hello".data(using: .utf8))
+        FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
         wait(for: [expectation], timeout: 10)
-        print("\(Watcher.fileChanges) file changes.")
 
-        //XCTAssertEqual(Watcher.fileChanges, 1)
-
-        //try "New Content".write(toFile: file.path, atomically: true, encoding: .utf8)
-        //XCTAssertEqual(fileChanges, 2)
-
-        //try FileManager.default.removeItem(at: file)
-        //XCTAssertEqual(fileChanges, 3)
+        XCTAssertEqual(Watcher.fileChanges, 1)
     }
 
+    func testLifecycleChange() throws {
+        var expectation = expectation(description: "Wait for file creation")
+        expectation.assertForOverFulfill = false
+
+        let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
+        FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
+
+        let watcher = Watcher(on: testFile) { expectation.fulfill() }
+
+        let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir), delegate: watcher)
+        try monitor.start()
+        Watcher.fileChanges = 0
+
+        try "New Content".write(toFile: testFile.path, atomically: false, encoding: .utf8)
+        wait(for: [expectation], timeout: 10)
+
+        XCTAssertEqual(Watcher.fileChanges, 1)
+    }
+
+    func testLifecycleDelete() throws {
+        var expectation = expectation(description: "Wait for file deletion")
+        expectation.assertForOverFulfill = false
+
+        let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
+        FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
+
+        let watcher = Watcher(on: testFile) { expectation.fulfill() }
+
+        let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir), delegate: watcher)
+        try monitor.start()
+        Watcher.fileChanges = 0
+
+        try FileManager.default.removeItem(at: testFile)
+        wait(for: [expectation], timeout: 10)
+
+        XCTAssertEqual(Watcher.fileChanges, 1)
+    }
 }
