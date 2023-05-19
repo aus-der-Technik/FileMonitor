@@ -1,6 +1,17 @@
+//
+// aus der Technik, on 17.05.23.
+// https://www.ausdertechnik.de
+//
 
 import Foundation
+import FileMonitorShared
+#if os(macOS)
+import FileMonitorMacOS
+#elseif os(Linux)
+import FileMonitorLinux
+#endif
 
+/// Errors that `FileMonitor` can throw
 public enum FileMonitorErrors: Error {
     case unsupported_os
     case not_implemented_yet
@@ -8,8 +19,7 @@ public enum FileMonitorErrors: Error {
     case can_not_open(url: URL)
 }
 
-public typealias FileDidChangedDelegate = WatcherDelegate
-
+/// FileMonitor: Watch for file changes in a directory with a unified API on Linux and macOS.
 public struct FileMonitor: WatcherDelegate {
 
     var watcher: WatcherProtocol
@@ -31,12 +41,10 @@ public struct FileMonitor: WatcherDelegate {
             delegate = externDelegate
         }
 
-        #if os(Linux) || os(FreeBSD)
+        #if os(Linux)
             watcher = LinuxWatcher(directory: url)
         #elseif os(macOS)
             watcher = try MacosWatcher(directory: url)
-        #elseif os(Windows)
-            watcher = try WindowsWatcher(directory: url)
         #else
             throw FileMonitorErrors.unsupported_os()
         #endif
@@ -44,23 +52,29 @@ public struct FileMonitor: WatcherDelegate {
         watcher.delegate = self
     }
 
+    /// Start watching file changes
+    /// - Throws:
+    ///   - FileMonitorErrors
+    ///   - Error
     public func start() throws {
         try watcher.observe()
     }
 
+    /// Stop watching file changes
+    ///
+    /// - Throws:
+    ///   - FileMonitorErrors
+    ///   - Error
+    public func stop() {
+        watcher.stop()
+    }
+
     // MARK: - WatcherDelegate
 
+    /// Called when the underlying subsystem detect a file change
+    ///
+    /// - Parameter event: A file change event
     public func fileDidChanged(event: FileChangeEvent) {
-        // TODO: Implement logger
-        switch event {
-            case let .added(file):
-                print("FILE added", file)
-            case let .deleted(file):
-                print("FILE deleted", file)
-            case let .changed(file):
-                print("FILE changed", file)
-        }
-        // pass to external delegeate 
         delegate?.fileDidChanged(event: event)
     }
 

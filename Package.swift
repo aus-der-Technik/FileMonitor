@@ -24,11 +24,30 @@ let package = Package(
         .target(
             name: "FileMonitor",
             dependencies: [
-                .target(name: "CInotify", condition: .when(platforms: [.linux]))
+                "FileMonitorShared",
+                .target(name: "FileMonitorMacOS", condition: .when(platforms: [.macOS])),
+                .target(name: "FileMonitorLinux", condition: .when(platforms: [.linux])),
             ]
         ),
+        .target(
+            name: "FileMonitorShared",
+            path: "Sources/FileMonitorShared"
+        ),
         .systemLibrary(name: "CInotify",
-            path: "Sources/Inotify"
+                path: "Sources/Inotify"
+        ),
+        .target(
+                name: "FileMonitorLinux",
+                dependencies: [
+                    .target(name: "CInotify", condition: .when(platforms: [.linux])),
+                    "FileMonitorShared"
+                ],
+                path: "Sources/FileMonitorLinux"
+        ),
+        .target(
+                name: "FileMonitorMacOS",
+                dependencies: ["FileMonitorShared"],
+                path: "Sources/FileMonitorMacOS"
         ),
         .executableTarget(
                 name: "FileMonitorExample",

@@ -1,3 +1,8 @@
+//
+// aus der Technik, on 17.05.23.
+// https://www.ausdertechnik.de
+//
+
 import Foundation
 import FileMonitor
 
@@ -41,7 +46,7 @@ public struct FileMonitorExample: FileDidChangedDelegate {
     /// Called when a file change event occurs
     ///
     /// - Parameter event: A FileChange event
-    public func fileDidChanged(event: FileChangeEvent) {
-        print("\(event)")
+    public func fileDidChanged(event: FileChange) {
+        print("\(event.description)")
     }
 }

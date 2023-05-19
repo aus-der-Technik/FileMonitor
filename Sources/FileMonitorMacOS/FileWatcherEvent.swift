@@ -1,9 +1,10 @@
 //
 // aus der Technik, on 16.05.23.
+// https://www.ausdertechnik.de
+//
 // Based on: https://github.com/eonist/FileWatcher/tree/master
 //
 
-#if os(macOS)
 import Foundation
 
 /**
@@ -75,4 +76,3 @@ extension FileWatcherEvent {
         return result
     }
 }
-#endif

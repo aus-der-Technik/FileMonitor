@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import FileMonitor
+import FileMonitorShared
 
 final class FileMonitorTests: XCTestCase {
 
@@ -100,4 +101,6 @@ final class FileMonitorTests: XCTestCase {
 
         XCTAssertGreaterThan(Watcher.fileChanges, 0)
     }
+
+
 }

@@ -1,23 +1,26 @@
 //
 // aus der Technik, on 15.05.23.
+// https://www.ausdertechnik.de
 //
 
 import Foundation
-#if os(Linux) || os(FreeBSD)
+import FileMonitorShared
+#if canImport(CInotify)
 import CInotify
+#endif
 
-
-struct LinuxWatcher: WatcherProtocol {
+#if os(Linux)
+public struct LinuxWatcher: WatcherProtocol {
     var fsWatcher: FileSystemWatcher
-    var delegate: WatcherDelegate?
+    public var delegate: WatcherDelegate?
     var path: URL
 
-    init(directory: URL) {
+    public init(directory: URL) {
         fsWatcher = FileSystemWatcher()
         path = directory
     }
 
-    func observe() throws {
+    public func observe() throws {
         fsWatcher.watch(path: self.path.path, for: InotifyEventMask.inAllEvents) { fsEvent in
             //print("Mask: 0x\(String(format: "%08x", fsEvent.mask))")
             guard let url = URL(string: fsEvent.name) else { return }
@@ -58,7 +61,7 @@ struct LinuxWatcher: WatcherProtocol {
         fsWatcher.start()
     }
 
-    func stop() {
+    public func stop() {
         fsWatcher.stop()
     }
 }
