@@ -1,13 +1,18 @@
-#if os(Linux)
-import CInotify
-
-
-import Dispatch
-import Foundation
-
+//
+// aus der Technik, on 16.05.23.
+// https://www.ausdertechnik.de
+//
 // Heavily inspired by https://github.com/felix91gr/FileSystemWatcher/blob/master/Sources/fswatcher.swift
-
 // See https://www.man7.org/linux/man-pages/man7/inotify.7.html
+
+import Foundation
+import Dispatch
+#if canImport(CInotify)
+import CInotify
+#endif
+
+#if os(Linux)
+
 public struct InotifyEvent {
   // Watch descriptor
   public var watchDescriptor: Int
@@ -81,7 +86,6 @@ public class FileSystemWatcher {
     private var shouldStopWatching: Bool = false
 
     public init() {
-        //dispatchQueue = DispatchQueue(label: "inotify.queue", qos: .background, attributes: [.initiallyInactive, .concurrent])
         dispatchQueue = DispatchQueue.global(qos: .background)
         fileDescriptor = Int(inotify_init())
         if fileDescriptor < 0 {
@@ -109,7 +113,8 @@ public class FileSystemWatcher {
         close(Int32(fileDescriptor))
     }
 
-    @discardableResult public func watch(path: String, for mask: InotifyEventMask, thenInvoke callback: @escaping (InotifyEvent) -> Void) -> Int {
+    @discardableResult
+    public func watch(path: String, for mask: InotifyEventMask, thenInvoke callback: @escaping (InotifyEvent) -> Void) -> Int {
         watchDescriptor = Int(inotify_add_watch(Int32(fileDescriptor), path, mask.rawValue))
 
         dispatchQueue.async {

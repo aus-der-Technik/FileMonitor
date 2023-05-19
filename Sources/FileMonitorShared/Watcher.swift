@@ -1,21 +1,15 @@
 //
 // aus der Technik, on 15.05.23.
+// https://www.ausdertechnik.de
 //
 
 import Foundation
-
-public enum FileChangeEvent {
-    case added(file: URL)
-    case deleted(file: URL)
-    case changed(file: URL)
-    // case moved(from: URL, to: URL) // tbd
-}
 
 public protocol WatcherDelegate {
     func fileDidChanged(event: FileChangeEvent)
 }
 
-protocol WatcherProtocol {
+public protocol WatcherProtocol {
     var delegate: WatcherDelegate? { set get }
 
     init(directory: URL) throws
@@ -23,7 +17,7 @@ protocol WatcherProtocol {
     func stop()
 }
 
-extension WatcherProtocol {
+public extension WatcherProtocol {
     func getCurrentFiles(in directory: URL) throws -> [URL] {
         try FileManager.default.contentsOfDirectory(
                 at: directory,
@@ -35,5 +29,4 @@ extension WatcherProtocol {
     func getDifferencesInFiles(lhs: [URL], rhs: [URL]) -> Set<URL> {
         Set(lhs).subtracting(rhs)
     }
-
 }

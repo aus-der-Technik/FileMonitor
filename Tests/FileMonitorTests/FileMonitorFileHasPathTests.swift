@@ -3,7 +3,7 @@ import XCTest
 @testable import FileMonitor
 import FileMonitorShared
 
-final class FileMonitorExplicitAddTests: XCTestCase {
+final class FileMonitorFileHasPathTests: XCTestCase {
 
     let tmp = FileManager.default.temporaryDirectory
     let dir = String.random(length: 10)
@@ -22,9 +22,10 @@ final class FileMonitorExplicitAddTests: XCTestCase {
         try FileManager.default.removeItem(at: directory)
     }
 
-    struct AddWatcher: FileDidChangedDelegate {
+    struct Watcher: FileDidChangedDelegate {
         static var fileChanges = 0
         static var missedChanges = 0
+        static var lastFile: URL? = nil
         let callback: ()->Void
         let file: URL
 
@@ -37,12 +38,13 @@ final class FileMonitorExplicitAddTests: XCTestCase {
             switch event {
             case .added(let fileInEvent):
                 if file.lastPathComponent == fileInEvent.lastPathComponent {
-                    AddWatcher.fileChanges = AddWatcher.fileChanges + 1
+                    Watcher.lastFile = fileInEvent
+                    Watcher.fileChanges = Watcher.fileChanges + 1
                     callback()
                 }
             default:
                 print("Missed", event)
-                AddWatcher.missedChanges = AddWatcher.missedChanges + 1
+                Watcher.missedChanges = Watcher.missedChanges + 1
             }
         }
     }
@@ -52,16 +54,20 @@ final class FileMonitorExplicitAddTests: XCTestCase {
         expectation.assertForOverFulfill = false
 
         let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
-        let watcher = AddWatcher(on: testFile) { expectation.fulfill() }
+        let watcher = Watcher(on: testFile) { expectation.fulfill() }
 
         let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir), delegate: watcher)
         try monitor.start()
-        AddWatcher.fileChanges = 0
+        Watcher.fileChanges = 0
 
         try "hello".write(to: testFile, atomically: false, encoding: .utf8)
         XCTAssertTrue(FileManager.default.fileExists(atPath: testFile.path))
+
         wait(for: [expectation], timeout: 10)
 
-        XCTAssertEqual(AddWatcher.fileChanges, 1)
+        XCTAssertEqual(Watcher.fileChanges, 1)
+        XCTAssertNotNil(Watcher.lastFile)
+        XCTAssertTrue(((Watcher.lastFile?.hasDirectoryPath) != nil))
+        XCTAssert(Watcher.lastFile!.path.contains(dir))
     }
 }
