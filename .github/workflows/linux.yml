@@ -1,0 +1,24 @@
+name: Linux
+
+on:
+  push:
+    branches: [ main, release/*, feature/* ]
+  pull_request:
+    branches: [ main, release/* ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Swift
+      uses: swift-actions/setup-swift@v1
+      with:
+        swift-version: 5.7
+    - name: Build
+      run: swift build -v
+    - name: Run tests
+      run: swift test -v
