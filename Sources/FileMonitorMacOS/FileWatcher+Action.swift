@@ -5,8 +5,11 @@
 // Based on: https://github.com/eonist/FileWatcher/tree/master
 //
 
+#if canImport(Cocoa)
 import Cocoa
+#endif
 
+#if os(macOS)
 /**
  * Actions
  */
@@ -48,3 +51,4 @@ extension FileWatcher {
         streamRef = nil
     }
 }
+#endif
