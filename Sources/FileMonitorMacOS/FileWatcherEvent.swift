@@ -7,6 +7,7 @@
 
 import Foundation
 
+#if os(macOS)
 /**
  * - Parameters:
  *    - id: is an id number that the os uses to differentiate between events.
@@ -76,3 +77,4 @@ extension FileWatcherEvent {
         return result
     }
 }
+#endif

@@ -64,7 +64,7 @@ public class FileSystemWatcher {
                             $0.pointee
                         }
                     }
-                    dump(event)
+
                     if event.len > 0 {
                         let inotifyEvent = InotifyEvent(
                                 watchDescriptor: Int(event.wd),

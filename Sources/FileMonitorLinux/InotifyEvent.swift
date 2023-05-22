@@ -49,7 +49,7 @@ public enum InotifyEventMask: UInt32 {
   case inModify             = 0x00000002 // File was modified
   case inAttrib             = 0x00000004 // Metadata changed
 
-  case inCloseWrite         = 0x00000008 // Closed after opened for wriitng
+  case inCloseWrite         = 0x00000008 // Closed after opened for writing
   case inCloseNoWrite       = 0x00000010 // Closed after opening for reading
   case inClose              = 0x00000018 // Closed (independent of mode)
 

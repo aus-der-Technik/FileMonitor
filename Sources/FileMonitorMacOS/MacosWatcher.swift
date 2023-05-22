@@ -6,6 +6,7 @@
 import Foundation
 import FileMonitorShared
 
+#if os(macOS)
 public final class MacosWatcher: WatcherProtocol {
     public var delegate: WatcherDelegate?
     let fileWatcher: FileWatcher
@@ -56,3 +57,4 @@ public final class MacosWatcher: WatcherProtocol {
         fileWatcher.stop();
     }
 }
+#endif
