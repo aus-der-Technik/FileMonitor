@@ -44,11 +44,13 @@ To use FileMonitor, follow this example:
 
 ```swift
 import FileMonitor
+import Foundation
 
 struct FileMonitorExample: FileDidChangedDelegate {
     init() throws {
-        let monitor = try FileMonitor(directory: "~/Downloads", delegate: self )
-        try monitor.start();
+        let dir = FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
+        let monitor = try FileMonitor(directory: dir, delegate: self )
+        try monitor.start()
     }
     
     public func fileDidChanged(event: FileChange) {
