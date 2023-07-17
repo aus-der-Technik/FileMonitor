@@ -22,7 +22,7 @@ final class FileMonitorFileHasPathTests: XCTestCase {
         try FileManager.default.removeItem(at: directory)
     }
 
-    struct Watcher: FileDidChangedDelegate {
+    struct Watcher: FileDidChangeDelegate {
         static var fileChanges = 0
         static var missedChanges = 0
         static var lastFile: URL? = nil

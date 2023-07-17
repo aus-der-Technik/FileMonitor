@@ -7,7 +7,7 @@ import Foundation
 import FileMonitor
 
 @main
-public struct FileMonitorExample: FileDidChangedDelegate {
+public struct FileMonitorExample: FileDidChangeDelegate {
 
     /// Main entrypoint
     /// Start FileMonitorExample with an argument to the monitored directory

@@ -23,7 +23,7 @@ public enum FileMonitorErrors: Error {
 public struct FileMonitor: WatcherDelegate {
 
     var watcher: WatcherProtocol
-    public var delegate: FileDidChangedDelegate? {
+    public var delegate: FileDidChangeDelegate? {
         didSet {
             // further improvement:
             // bind watcher.delegate direct to delegate to get rid of call-tree
@@ -31,7 +31,7 @@ public struct FileMonitor: WatcherDelegate {
     }
 
     @discardableResult
-    public init(directory url: URL, delegate externDelegate: FileDidChangedDelegate? = nil) throws {
+    public init(directory url: URL, delegate externDelegate: FileDidChangeDelegate? = nil) throws {
         if url.isDirectory == false {
             throw FileMonitorErrors.not_a_directory(url: url)
         }

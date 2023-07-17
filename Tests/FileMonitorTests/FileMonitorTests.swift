@@ -26,7 +26,7 @@ final class FileMonitorTests: XCTestCase {
         XCTAssertNoThrow(try FileMonitor(directory: FileManager.default.temporaryDirectory))
     }
 
-    struct Watcher: FileDidChangedDelegate {
+    struct Watcher: FileDidChangeDelegate {
         static var fileChanges = 0
         let callback: ()->Void
         let file: URL

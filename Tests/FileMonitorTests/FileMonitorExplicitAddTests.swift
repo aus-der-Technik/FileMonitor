@@ -22,7 +22,7 @@ final class FileMonitorExplicitAddTests: XCTestCase {
         try FileManager.default.removeItem(at: directory)
     }
 
-    struct AddWatcher: FileDidChangedDelegate {
+    struct AddWatcher: FileDidChangeDelegate {
         static var fileChanges = 0
         static var missedChanges = 0
         let callback: ()->Void

@@ -5,7 +5,7 @@
 import FileMonitorShared
 
 /// Delegate that is called when a file change happens
-public typealias FileDidChangedDelegate = WatcherDelegate
+public typealias FileDidChangeDelegate = WatcherDelegate
 
 /// Type of the file change
 public typealias FileChange = FileChangeEvent
