@@ -46,7 +46,7 @@ To use FileMonitor, follow this example:
 import FileMonitor
 import Foundation
 
-struct FileMonitorExample: FileDidChangedDelegate {
+struct FileMonitorExample: FileDidChangeDelegate {
     init() throws {
         let dir = FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
         let monitor = try FileMonitor(directory: dir, delegate: self )
