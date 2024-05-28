@@ -21,6 +21,7 @@ public enum FileMonitorErrors: Error {
 
 /// FileMonitor: Watch for file changes in a directory with a unified API on Linux and macOS.
 public struct FileMonitor: WatcherDelegate {
+    public let (stream, continuation) = AsyncStream.makeStream(of: FileChange.self)
 
     var watcher: WatcherProtocol
     public var delegate: FileDidChangeDelegate? {
@@ -67,6 +68,7 @@ public struct FileMonitor: WatcherDelegate {
     ///   - Error
     public func stop() {
         watcher.stop()
+        continuation.finish()
     }
 
     // MARK: - WatcherDelegate
@@ -76,6 +78,7 @@ public struct FileMonitor: WatcherDelegate {
     /// - Parameter event: A file change event
     public func fileDidChanged(event: FileChangeEvent) {
         delegate?.fileDidChanged(event: event)
+        continuation.yield(event)
     }
 
 }

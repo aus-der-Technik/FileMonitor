@@ -23,6 +23,7 @@ FileMonitor focuses on monitoring file changes within a given directory. It offe
 - Detection of file creations
 - Detection of file modifications
 - Detection of file deletions
+- AsyncStream delivery of detections
 
 All events are propagated through a delegate function using a switchable enum type.
 
@@ -40,7 +41,32 @@ Don't forget to add the product "FileMonitor" as a dependency for your target:
 ```
 
 ## Usage
-To use FileMonitor, follow this example:
+### Use with AsyncStream
+Example usage:
+```swift
+import FileMonitor
+import Foundation
+
+struct FileMonitorExample: FileDidChangeDelegate {
+    init() throws {
+        let dir = FileManager.default.homeDirectoryForCurrentUser.appending(path: "Downloads")
+        let monitor = try FileMonitor(directory: dir, delegate: self )
+        try monitor.start()
+        for await event in monitor.stream {
+            switch event {
+            case .added(let file):
+                print("New file \(file.path)")
+            default:
+                print("\(event)")
+            }
+        }
+    }
+}
+```
+
+
+### Use as a Delegate
+Example usage:
 
 ```swift
 import FileMonitor
