@@ -6,13 +6,14 @@
 import Foundation
 import FileMonitor
 
+/// This example shows how to use `FileMonitor`’s AsyncStream with Swift  Structured Concurrency
 @main
-public struct FileMonitorExample: FileDidChangeDelegate {
+public struct FileMonitorAsyncStreamExample {
 
     /// Main entrypoint
     /// Start FileMonitorExample with an argument to the monitored directory
     /// - Throws: an error when the FileMonitor can't be initialized
-    public static func main() throws {
+    public static func main() async throws {
         let arguments = CommandLine.arguments
         if arguments.count < 2 {
             print("One folder should be provided at least.")
@@ -24,29 +25,22 @@ public struct FileMonitorExample: FileDidChangeDelegate {
             exit(1)
         }
 
-        let fileMonitor = FileMonitorExample()
-        try fileMonitor.run(on: folderToWatch);
+        let fileMonitor = FileMonitorAsyncStreamExample()
+        try await fileMonitor.run(on: folderToWatch)
     }
 
     /// Run a file monitor on a given folder
     ///
     /// - Parameter folder: A URL of a directory
     /// - Throws: an error when the FileMonitor can't be initialized
-    func run(on folder: URL) throws {
+    func run(on folder: URL) async throws {
         print("Monitoring files in \(folder.standardized.path)")
 
-        let monitor = try FileMonitor(directory: folder.standardized, delegate: self )
-        try monitor.start();
-
-        RunLoop.main.run()
-    }
-
-    // MARK: - Delegate FileDidChanged
-
-    /// Called when a file change event occurs
-    ///
-    /// - Parameter event: A FileChange event
-    public func fileDidChanged(event: FileChange) {
-        print("\(event.description)")
+        let monitor = try FileMonitor(directory: folder.standardized)
+        try monitor.start()
+        // MARK: - AsyncStream
+        for await event in monitor.stream {
+            print("Stream: \(event.description)")
+        }
     }
 }

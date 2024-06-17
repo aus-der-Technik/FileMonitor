@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -14,8 +14,11 @@ let package = Package(
                 name: "FileMonitor",
                 targets: ["FileMonitor"]),
         .executable(
-                name: "FileMonitorExample",
-                targets: ["FileMonitorExample"]
+                name: "FileMonitorDelegateExample",
+                targets: ["FileMonitorDelegateExample"]
+        ),
+        .executable(name: "FileMonitorAsyncStreamExample",
+                    targets: ["FileMonitorAsyncStreamExample"]
         )
     ],
     dependencies: [
@@ -50,7 +53,10 @@ let package = Package(
                 path: "Sources/FileMonitorMacOS"
         ),
         .executableTarget(
-                name: "FileMonitorExample",
+                name: "FileMonitorDelegateExample",
+                dependencies: ["FileMonitor"]),
+        .executableTarget(
+                name: "FileMonitorAsyncStreamExample",
                 dependencies: ["FileMonitor"]),
         .testTarget(
             name: "FileMonitorTests",
