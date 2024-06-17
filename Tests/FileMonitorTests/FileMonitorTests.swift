@@ -67,8 +67,6 @@ final class FileMonitorTests: XCTestCase {
     func testLifecycleChange() async throws {
         let expectation = expectation(description: "Wait for file creation")
         expectation.assertForOverFulfill = false
-        let asyncExpectation = XCTestExpectation(description: "Async wait for file creation")
-        expectation.assertForOverFulfill = true
 
         let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
         FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
@@ -78,18 +76,35 @@ final class FileMonitorTests: XCTestCase {
         let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir), delegate: watcher)
         try monitor.start()
         Watcher.fileChanges = 0
+        
+        try "Next New Content".write(toFile: testFile.path, atomically: true, encoding: .utf8)
+        await fulfillment(of: [expectation], timeout: 10)
+        monitor.stop()
+        XCTAssertGreaterThan(Watcher.fileChanges, 0)
+    }
+
+    func testLifecycleChangeAsync() async throws {
+        let asyncExpectation = XCTestExpectation(description: "Async wait for file creation")
+
+        let testFile = tmp.appendingPathComponent(dir).appendingPathComponent("\(String.random(length: 8)).\(String.random(length: 3))");
+        FileManager.default.createFile(atPath: testFile.path, contents: "hello".data(using: .utf8))
+
+        let monitor = try FileMonitor(directory: tmp.appendingPathComponent(dir))
+        try monitor.start()
+        Watcher.fileChanges = 0
 
         var events = [FileChange]()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+             try? "New Content".write(toFile: testFile.path, atomically: true, encoding: .utf8)
+        }
+
         for await event in monitor.stream {
             events.append(event)
             asyncExpectation.fulfill()
             monitor.stop()
         }
-
-        try "New Content".write(toFile: testFile.path, atomically: true, encoding: .utf8)
-        await fulfillment(of: [expectation, asyncExpectation], timeout: 10)
-
-        XCTAssertGreaterThan(Watcher.fileChanges, 0)
+        
+        await fulfillment(of: [asyncExpectation], timeout: 10)
         XCTAssertGreaterThan(events.count, 0)
     }
 
