@@ -10,9 +10,6 @@ public extension URL {
     // Is the URL a directory?
     var isDirectory: Bool {
         var boolFalse: ObjCBool = false
-        if FileManager.default.fileExists(atPath: path, isDirectory: &boolFalse) && boolFalse.boolValue {
-            return true
-        }
-        return false
+        return FileManager.default.fileExists(atPath: path, isDirectory: &boolFalse) && boolFalse.boolValue
     }
 }
