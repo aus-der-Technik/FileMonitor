@@ -116,7 +116,7 @@ submit a PR:
 4. Ensure that all existing tests pass.
 5. Update the documentation and README.md if necessary.
 6. Commit your changes with a descriptive commit message.
-7.Push your branch to your forked repository.
+7. Push your branch to your forked repository.
 8. Open a PR on the main repository, providing a detailed description of your changes.
 
 9. Please note that all contributions will be reviewed by the maintainers, who may provide feedback or request modifications before merging the changes.
