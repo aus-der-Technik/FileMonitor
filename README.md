@@ -2,7 +2,7 @@
 
 Watch for file changes in a directory with a unified API on Linux and macOS.
 
-## Overvie
+## Overview
 Detecting file changes is an OS-specific task, and the implementation differs on each major platform. While Linux uses 
 sys/inotify, macOS lacks this functionality and provide `FSEventStream`. Even though there are many examples available 
 for specific platforms, the interfaces still differ.
